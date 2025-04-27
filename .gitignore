@@ -6,3 +6,11 @@ venv/
 tokenizers/readmetokenizer_v1000_n100000.pkl
 experiments/*_ReadmeGPT/
 scratch.py
+uv.lock
+build/
+pytest_cache/
+htmlcov/
+*.egg-info/
+*__pycache__/
+.coverage
+.python-version
