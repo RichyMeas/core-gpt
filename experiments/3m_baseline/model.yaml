@@ -1,0 +1,27 @@
+defaults:
+  - data/fineweb-edu-1B.yaml
+  - _self_
+
+# Tokens per step = grad_acc_steps * train_seq_len * GPUs
+model_name: 3m_baseline
+val_steps: 10
+# Roughly will take 1.7 hours to train 1B tokens
+train_steps: 20 # 655,360 tokens = 4 * 8192 * 20
+grad_acc_steps: 4
+cooldown_frac: 0.4
+
+tokenizer: gpt4regex_v50256_n1000000000.pkl
+vocab_size: 50257
+
+num_layers: 6 # 4
+num_heads: 2 # 6 # 2
+model_dim: 16 # 16
+
+head_dim: 16 # 8 # 8
+mlp_ratio: 4
+num_val_emb: 1
+
+use_fp8: false
+val_loss_every: ${val_steps}
+save_every: true
+seed: 1234

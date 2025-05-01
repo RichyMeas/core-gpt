@@ -3,7 +3,7 @@ import torch.distributed as dist
 import pickle
 import tiktoken
 import json 
-from ..utils.logging import print0
+from .log_utils import print0
 import torch.nn.functional as F
 import os
 
@@ -55,9 +55,9 @@ def evaluate_hellaswag(model, data_path, master_process, world_size, rank, cfg, 
     """Evaluate model on HellaSwag in a distributed way using modulo distribution"""
     assert limit <= 1014, f'there are only 1014 questions in the benchmark, but got limit={limit}'
     torch._dynamo.config.disable = True
-    tokenizer_config = pickle.load(open(f"tokenizers/{args.tokenizer}", 'rb'))
+    tokenizer_config = pickle.load(open(f"tokenizers/{cfg.tokenizer}", 'rb'))
     enc = tiktoken.Encoding(
-        name=args.tokenizer[:-4], # :-4 to remove the .pkl
+        name=cfg.tokenizer[:-4], # :-4 to remove the .pkl
         pat_str=tokenizer_config['pat_str'],
         mergeable_ranks=tokenizer_config['mergeable_ranks'],
         special_tokens={

@@ -5,13 +5,13 @@
 import torch
 import tiktoken
 import pickle
-from .logging import print0
+from .log_utils import print0
 
 def sample_from_model(model, prompt, cfg, max_new_tokens=100, temperature=0.8, top_k=200):
     """Generate text samples from the model given a prompt."""
-    tokenizer_config = pickle.load(open(f"tokenizers/{args.tokenizer}", 'rb'))
+    tokenizer_config = pickle.load(open(f"tokenizers/{cfg.tokenizer}", 'rb'))
     enc = tiktoken.Encoding(
-        name=args.tokenizer[:-4], # :-4 to remove the .pkl
+        name=cfg.tokenizer[:-4], # :-4 to remove the .pkl
         pat_str=tokenizer_config['pat_str'],
         mergeable_ranks=tokenizer_config['mergeable_ranks'],
         special_tokens={

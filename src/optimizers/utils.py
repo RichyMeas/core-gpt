@@ -1,6 +1,6 @@
 # learning rate schedule: stable then decay
 def get_lr(step: int, training_steps: int, cooldown_frac: float) -> float:
-    if step <= 0 or training_steps <= 0 or cooldown_frac <= 0:
+    if step < 0 or training_steps <= 0 or cooldown_frac <= 0:
         raise ValueError(
             f"Step, training steps, or cooldown frac is negative. "
             f"Received step={step}, training_steps={training_steps}, cooldown_frac={cooldown_frac}"

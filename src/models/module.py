@@ -88,14 +88,15 @@ class MLP(nn.Module):
         return x
 
 class Block(nn.Module):
-    def __init__(self, dim: int, num_heads: int, mlp_ratio: int, max_seq_len: int, layer_idx: int):
+    def __init__(self, dim: int, num_heads: int, mlp_ratio: int, max_seq_len: int, layer_idx: int, head_dim=None):
         super().__init__()
         # skip attention of blocks.7 (the 8th layer) by @YouJiacheng
         # Adjusted for smaller models - only skip if we have enough layers
         skip_attn = (layer_idx == 7) and (dim > 512)  # Only skip in larger models
-        self.attn = CausalSelfAttention(dim, num_heads, max_seq_len) if not skip_attn else None
+        self.attn = CausalSelfAttention(dim, num_heads, max_seq_len, head_dim) if not skip_attn else None
         self.mlp = MLP(dim, mlp_ratio)
         self.lambdas = nn.Parameter(torch.tensor([1., 0.]))
+        self.layer_idx = layer_idx
 
     def forward(self, x: Tensor, ve: Tensor | None, x0: Tensor, block_mask: BlockMask):
         x = self.lambdas[0] * x + self.lambdas[1] * x0

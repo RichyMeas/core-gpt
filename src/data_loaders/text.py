@@ -2,7 +2,7 @@ from pathlib import Path
 import torch
 import glob
 import itertools
-from ..utils.logging import print0
+from ..utils.log_utils import print0
 
 def _load_data_shard(file: Path):
     header = torch.from_file(str(file), False, 256, dtype=torch.int32) # header is 256 int32
@@ -16,7 +16,7 @@ def _load_data_shard(file: Path):
         assert nbytes == 2 * num_tokens, "number of tokens read does not match header"
     return tokens
 
-def distributed_data_generator(filename_pattern: str, batch_size: int, rank: int, world_size: int, cfg, print_stats=True):
+def distributed_data_generator(filename_pattern: str, batch_size: int, rank: int, world_size: int, cfg, master_process, logfile, print_stats=True):
     files = [Path(file) for file in sorted(glob.glob(filename_pattern))]
     if not files:
         raise ValueError(f"No files found matching pattern: {filename_pattern}")
@@ -34,16 +34,16 @@ def distributed_data_generator(filename_pattern: str, batch_size: int, rank: int
         tokens_per_file.append(file_tokens)
     
     # Calculate how many tokens we need for training
-    tokens_needed = args.train_steps * batch_size * args.grad_acc_steps
+    tokens_needed = cfg.train_steps * batch_size * cfg.grad_acc_steps
     
     # Determine if we need to cycle and calculate epochs
     will_cycle = total_tokens < tokens_needed
     epochs = tokens_needed / total_tokens if total_tokens > 0 else 0
     
     if rank == 0 and print_stats:
-        print0(f"Total tokens across {len(files)} shard(s): {total_tokens:,}", console=True)
-        print0(f"Tokens needed for {args.train_steps} iterations: {tokens_needed:,}", console=True)
-        print0(f"Training will use approximately {epochs:.2f} epochs over the data", console=True)
+        print0(f"Total tokens across {len(files)} shard(s): {total_tokens:,}", master_process=master_process, logfile=logfile, console=True)
+        print0(f"Tokens needed for {cfg.train_steps} iterations: {tokens_needed:,}", master_process=master_process, logfile=logfile, console=True)
+        print0(f"Training will use approximately {epochs:.2f} epochs over the data", master_process=master_process, logfile=logfile, console=True)
     
     file_iter = itertools.cycle(files) if will_cycle else iter(files)
     tokens, pos = _load_data_shard(next(file_iter)), 0

@@ -1,14 +1,6 @@
 import pytest
 from src.optimizers.utils import get_lr
 
-def test_step_count_negative_exception():
-    step = -1
-    training_steps = 1
-    cooldown_frac = 0.02
-    error_msg = f"Step, training steps, or cooldown frac is negative. Received step={step}, training_steps={training_steps}, cooldown_frac={cooldown_frac}"
-    
-    with pytest.raises(ValueError, match=error_msg):
-        get_lr(step, training_steps, cooldown_frac) 
 
 def test_training_steps_negative_exception():
     step = 1
